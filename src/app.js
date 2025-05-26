@@ -3,40 +3,32 @@ const { adminAuth, userAuth } = require("./middlewares/auth");
 
 const app = express();
 
-app.use("/admin", adminAuth, userAuth );
 
+// app.use("/", (err, req, res, next) => {
 
-app.get("/user", userAuth, (req, res,) => {
-  res.send({
-    message: "User data accessed successfully",
-  });
-  console.log("User accessed data");
+//   if(err){
+//     res.status(401).send({
+//       error: "Unauthorized access",
+//       message: "You are not authorized to access this route",
+//     });
+//   }
+// })
+
+app.get("/user/getAllData", (req, res) =>{
+
+  throw new Error("This is an error from the user route");
+  res.send({ message: "user data send" })
 })
 
-app.get("/user/login", (req, res) => {
-  res.send({
-    message: "User logged in successfully",
-  });
-  console.log("User logged in");
-}); 
+app.use("/", (err, req, res, next) => {
 
-app.get("/admin/getAllData", (req, res) => {
-  res.send({
-    users: [
-      { id: 1, name: "John Doe" },
-      { id: 2, name: "Jane Smith" },
-      { id: 3, name: "Alice Johnson" },
-    ],
-  });
-  console.log("Admin accessed all data");
-});
-
-app.get("/admin/deleteAllData", (req, res) => {
-  res.send({
-    message: "All data deleted successfully",
-  });
-  console.log("Admin deleted all data");
-});
+  if(err){
+    res.status(401).send({
+      error: "Unauthorized access",
+      message: "You are not authorized to access this route",
+    });
+  }
+})
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
