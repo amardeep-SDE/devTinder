@@ -1,35 +1,35 @@
 const express = require("express");
-const { adminAuth, userAuth } = require("./middlewares/auth");
+const connectDB = require("./config/database.js");
+const User = require("./models/user.js");
 
 const app = express();
 
-
-// app.use("/", (err, req, res, next) => {
-
-//   if(err){
-//     res.status(401).send({
-//       error: "Unauthorized access",
-//       message: "You are not authorized to access this route",
-//     });
-//   }
-// })
-
-app.get("/user/getAllData", (req, res) =>{
-
-  throw new Error("This is an error from the user route");
-  res.send({ message: "user data send" })
-})
-
-app.use("/", (err, req, res, next) => {
-
-  if(err){
-    res.status(401).send({
-      error: "Unauthorized access",
-      message: "You are not authorized to access this route",
+app.post("/signup", async (req, res) => {
+  try {
+    const user = new User({
+      firstName: "Sachin",
+      lastName: "Tendulkar",
+      emailId: "sachin@gmail.com",
+      password: "sachin@123",
+      age: 20,
+      gender: "male",
     });
+    await user.save();
+    res.send({
+      message: "User created successfully",
+      user: user,
+    });
+  } catch (error) {
+    console.error("Error during signup:", error);
+    res.status(500).send({ error: "Internal Server Error" });
   }
-})
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
 });
+// Connect to the database
+connectDB()
+  .then(() => {
+    console.log("Database connected successfully");
+    app.listen(3000, () => {
+      console.log("Server is running on port 3000");
+    });
+  })
+  .catch((error) => console.error("Database connection failed:", error));
