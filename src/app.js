@@ -23,7 +23,7 @@ app.post("/signup", async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error);
-    res.status(500).send({ error: "Internal Server Error" });
+    res.status(500).send({ error: "Internal Server Error" , message: error.message });
   }
 });
 
@@ -60,7 +60,10 @@ app.patch("/userUpdate", async (req, res) => {
     const userId = req.body.userId;
     const updateData = req.body;
 
-    const user = await User.findByIdAndUpdate({ _id: userId }, updateData);
+    const user = await User.findByIdAndUpdate({ _id: userId }, updateData, {
+      returnDocument: "after",
+      runValidators: true,
+    });
     if (!user) {
       return res.status(404).send({ error: "User not found" });
     }
@@ -72,7 +75,7 @@ app.patch("/userUpdate", async (req, res) => {
     
   } catch (error) {
     console.error("Error updating user:", error);
-    res.status(500).send({ error: "Internal Server Error" });
+    res.status(500).send({ error: "Something went wrong", message: error.message });
     
   }
 });
