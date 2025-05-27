@@ -70,4 +70,10 @@ Create a custome validate function for gender
  - Data sanitizing - Add API validation for each field
 
  - Install validator
- - Explore validator library function and use validator func for password, email
+ - Explore validator library function and use validator func for password, email, photoURL
+ - Never trust req.body
+ - Validate data in Signup API
+ - Install bcrypt package
+ - Create PasswordHash using bcrypt.hash & save the user is excrupted password 
+ - Create login API
+ - Compare password and throw errors if mail or password is invalid

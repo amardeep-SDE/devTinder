@@ -1,28 +1,46 @@
 const express = require("express");
 const connectDB = require("./config/database.js");
 const User = require("./models/user.js");
-
+const { valiDateSignupData } = require("./utils/validation.js");
+const bcrypt = require("bcryptjs");
 const app = express();
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    // const { firstName, lastName, emailId, password, age, gender } = req.body;
-    // const user = new User({
-    //   firstName,
-    //   lastName,
-    //   emailId,
-    //   password,
-    //   age,
-    //   gender,
-    // });
+    const {
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills,
+    } = req.body;
+    console.log("Received signup data:", req.body);
+    valiDateSignupData(req);
 
-    if(req.body.skills && req.body.skills.length > 5) {
+    if (req.body.skills && req.body.skills.length > 5) {
       // return res.status(400).send({ error: "Skills array cannot exceed 5 items." });
       throw new Error("Skills array cannot exceed 5 items.");
     }
 
-    const user = new User(req.body);
+    const hashPassword = await bcrypt.hash(password, 8);
+    console.log("Hashed Password:", hashPassword);
+
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashPassword,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills: skills || [], // Default to an empty array if skills is not provided
+    });
     await user.save();
     res.send({
       message: "User created successfully",
@@ -30,7 +48,36 @@ app.post("/signup", async (req, res) => {
     });
   } catch (error) {
     console.error("Error during signup:", error);
-    res.status(500).send({ error: "Internal Server Error" , message: error.message });
+    res
+      .status(500)
+      .send({ error: "Internal Server Error", message: error.message });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    console.log("Received login data:", req.body);
+
+    const user = await User.findOne({ emailId });
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (isPasswordMatch) {
+      res.send({
+        message: "Login successful",
+        user: user,
+      });
+    } else {
+      res.status(401).send({ error: "Invalid credentials" });
+    }
+  } catch (error) {
+    console.error("Error during login:", error);
+    res
+      .status(500)
+      .send({ error: "Internal Server Error", message: error.message });
   }
 });
 
@@ -63,7 +110,6 @@ app.get("/feed", async (req, res) => {
 
 app.patch("/userUpdate/:userId", async (req, res) => {
   try {
-
     const userId = req.params.userId;
     const updateData = req.body;
 
@@ -84,7 +130,7 @@ app.patch("/userUpdate/:userId", async (req, res) => {
       return res.status(400).send({ error: "Invalid updates!" });
     }
 
-    if(updateData?.skills.length>5){
+    if (updateData?.skills.length > 5) {
       // return res.status(400).send({ error: "Skills array cannot exceed 5 items.", message: error.message });
       throw new Error("Skills array cannot exceed 5 items.");
     }
@@ -101,20 +147,19 @@ app.patch("/userUpdate/:userId", async (req, res) => {
       message: "User updated successfully",
       user,
     });
-    
   } catch (error) {
     console.error("Error updating user:", error);
-    res.status(500).send({ error: "Something went wrong", message: error.message });
-    
+    res
+      .status(500)
+      .send({ error: "Something went wrong", message: error.message });
   }
 });
-
 
 app.delete("/userDelete", async (req, res) => {
   try {
     const userId = req.body.userId;
     console.log("Deleting user with email:", userId);
-    
+
     const user = await User.findByIdAndDelete({ _id: userId });
 
     if (!user) {
