@@ -7,15 +7,22 @@ app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    const { firstName, lastName, emailId, password, age, gender } = req.body;
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password,
-      age,
-      gender,
-    });
+    // const { firstName, lastName, emailId, password, age, gender } = req.body;
+    // const user = new User({
+    //   firstName,
+    //   lastName,
+    //   emailId,
+    //   password,
+    //   age,
+    //   gender,
+    // });
+
+    if(req.body.skills && req.body.skills.length > 5) {
+      // return res.status(400).send({ error: "Skills array cannot exceed 5 items." });
+      throw new Error("Skills array cannot exceed 5 items.");
+    }
+
+    const user = new User(req.body);
     await user.save();
     res.send({
       message: "User created successfully",
@@ -54,11 +61,33 @@ app.get("/feed", async (req, res) => {
   }
 });
 
-app.patch("/userUpdate", async (req, res) => {
+app.patch("/userUpdate/:userId", async (req, res) => {
   try {
 
-    const userId = req.body.userId;
+    const userId = req.params.userId;
     const updateData = req.body;
+
+    const allowedUpdates = [
+      "firstName",
+      "lastName",
+      "password",
+      "age",
+      "gender",
+      "photoUrl",
+      "about",
+      "skills",
+    ];
+    const isValidOperation = Object.keys(updateData).every((update) =>
+      allowedUpdates.includes(update)
+    );
+    if (!isValidOperation) {
+      return res.status(400).send({ error: "Invalid updates!" });
+    }
+
+    if(updateData?.skills.length>5){
+      // return res.status(400).send({ error: "Skills array cannot exceed 5 items.", message: error.message });
+      throw new Error("Skills array cannot exceed 5 items.");
+    }
 
     const user = await User.findByIdAndUpdate({ _id: userId }, updateData, {
       returnDocument: "after",
