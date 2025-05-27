@@ -77,3 +77,9 @@ Create a custome validate function for gender
  - Create PasswordHash using bcrypt.hash & save the user is excrupted password 
  - Create login API
  - Compare password and throw errors if mail or password is invalid
+
+ - Install cookie-parser
+ - just send a dummy cookie to user
+ - Create GET/profile API and check if you get the cookie back
+ - In login API, after email and password validation,create a JWT token and send is to user in cookie
+ - Read the cookies inside your profile API and fined the logged in user

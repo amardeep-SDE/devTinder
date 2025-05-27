@@ -3,8 +3,11 @@ const connectDB = require("./config/database.js");
 const User = require("./models/user.js");
 const { valiDateSignupData } = require("./utils/validation.js");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
@@ -66,9 +69,15 @@ app.post("/login", async (req, res) => {
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (isPasswordMatch) {
-      res.send({
+
+      const token = await jwt.sign({_id: user._id}, "secretKey")
+      console.log("Generated Token:", token);
+
+      res.cookie("token", token)
+      res.status(200).send({
         message: "Login successful",
-        user: user,
+        success: true,
+        user,
       });
     } else {
       res.status(401).send({ error: "Invalid credentials" });
@@ -80,6 +89,49 @@ app.post("/login", async (req, res) => {
       .send({ error: "Internal Server Error", message: error.message });
   }
 });
+
+
+app.get("/profile", async (req, res) => {
+  try {
+   
+
+    const cookies = req.cookies;
+    // console.log("Cookies:", cookies);
+
+    const {token} = cookies;
+
+     if (!token) {
+      return res.status(401).send({ error: "Unauthorized access" });
+    } 
+    const decodedToken = jwt.verify(token, "secretKey");
+    // console.log("Decoded Token:", decodedToken);
+
+    const { _id } = decodedToken;
+    // console.log("User ID from token:", _id);
+
+   
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    // const user = await User.findOne({ emailId: emailId });
+    // console.log("User found:", user);
+    // if (!user) {
+    //   return res.status(404).send({ error: "User not found" });
+    // }
+
+    res.send({
+      message: "Profile retrieved successfully",
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.error("Error retrieving profile:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+  } 
+});
+
 
 app.get("/users", async (req, res) => {
   try {
