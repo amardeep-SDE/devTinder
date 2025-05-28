@@ -5,6 +5,7 @@ const { valiDateSignupData } = require("./utils/validation.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const { userAuth } = require("./middlewares/auth.js");
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -67,13 +68,12 @@ app.post("/login", async (req, res) => {
       return res.status(404).send({ error: "User not found" });
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await user.validatePassword(password);
     if (isPasswordMatch) {
-
-      const token = await jwt.sign({_id: user._id}, "secretKey")
+      const token = await user.getJWT();
       console.log("Generated Token:", token);
 
-      res.cookie("token", token)
+      res.cookie("token", token);
       res.status(200).send({
         message: "Login successful",
         success: true,
@@ -90,36 +90,9 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-   
-
-    const cookies = req.cookies;
-    // console.log("Cookies:", cookies);
-
-    const {token} = cookies;
-
-     if (!token) {
-      return res.status(401).send({ error: "Unauthorized access" });
-    } 
-    const decodedToken = jwt.verify(token, "secretKey");
-    // console.log("Decoded Token:", decodedToken);
-
-    const { _id } = decodedToken;
-    // console.log("User ID from token:", _id);
-
-   
-    const user = await User.findById(_id);
-    if (!user) {
-      return res.status(404).send({ error: "User not found" });
-    }
-
-    // const user = await User.findOne({ emailId: emailId });
-    // console.log("User found:", user);
-    // if (!user) {
-    //   return res.status(404).send({ error: "User not found" });
-    // }
+    const user = req.user;
 
     res.send({
       message: "Profile retrieved successfully",
@@ -129,9 +102,24 @@ app.get("/profile", async (req, res) => {
   } catch (error) {
     console.error("Error retrieving profile:", error);
     res.status(500).send({ error: "Internal Server Error" });
-  } 
+  }
 });
 
+app.post("/sendConnectionRequest", userAuth, (req, res) =>{
+
+  try {
+
+    res.send({
+      message: "Connection request sent successfully",
+      success: true,
+    });
+    
+  } catch (error) {
+    console.error("Error sending connection request:", error);
+    res.status(500).send({ error: "Internal Server Error" });
+    
+  }
+})
 
 app.get("/users", async (req, res) => {
   try {

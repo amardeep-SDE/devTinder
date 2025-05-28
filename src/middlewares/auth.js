@@ -1,36 +1,34 @@
-const adminAuth = (req, res, next) => {
-  console.log("Admin access attempt detected");
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+ const userAuth = async (req, res, next) => {
+  try {
+    const {token} = req.cookies;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "User Unauthorized",
+      });
+    }
+    // verify the token
+    const decoded = await jwt.verify(token, "secretKey");
 
-  const token = "xyz";
-  const isAdminVerified = token === "xyz";
+    const { _id } = decoded;
 
-  if (!isAdminVerified) {
-    res.send({
-      error: "Unauthorized access",
-      message: "You are not authorized to access this admin route",
-    });
-  } else {
+    const user = await User.findById(_id);
+    // check decoded token
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "User not found",
+      });
+    }
     next();
-  }
-}
-
-const userAuth = (req, res, next) => {
-  console.log("Admin access attempt detected - user");
-
-  const token = "xyz";
-  const isAdminVerified = token === "xyz";
-
-  if (!isAdminVerified) {
-    res.send({
-      error: "Unauthorized access",
-      message: "You are not authorized to access this user route",
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorized",
     });
-  } else {
-    next();
   }
-}
+};
 
-module.exports = {
-  adminAuth,
-  userAuth
-}
+module.exports = { userAuth };
