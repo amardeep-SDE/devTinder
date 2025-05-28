@@ -62,7 +62,7 @@
 - Explore schematype options from the doucmentation
 - Add required, unquie, lowercase, min, maxLength, trim
 - Add Default
-Create a custome validate function for gender
+- Create a custome validate function for gender
 - Improve the DB Schema - Put all appropiate validation on each field in Schema
 - Also add timestamps in userSchema
 
@@ -88,3 +88,15 @@ Create a custome validate function for gender
  - Set the expiry of JWT token and cookies to 7 days
  - Create userSchema method to getJWT()
  - Create userSchema method to comparePassword(passwordInputByUser)
+
+ - Explore tinder APIs
+ - Create a list all APIs you can think of in DevTinder
+ - Group multiple routes under respective routes
+ - Read Documentation for express.Router
+ - Create routes folder for managing auth, profile, request routes
+ - Create authRouter, profileRouter, requestRouter
+ - Import these routers in app.js
+ - Create POST /logout API
+ - Create PATCH /profile/edit
+ - Create patch /profile/password API => forget password API
+ - Make you validate all data in every POST, PATCH APIs

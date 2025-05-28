@@ -14,6 +14,33 @@ const valiDateSignupData = (req) => {
   }
 }
 
+const validateProfileEditData = (req) => {
+
+  const allowedUpdates = [
+    "firstName",
+    "lastName",
+    "password",
+    "age",
+    "gender",
+    "photoUrl",
+    "about",
+    "skills",
+  ];
+
+  const updates = Object.keys(req.body);
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+  // if (!isValidOperation) {
+  //   throw new Error("Invalid updates!"); 
+  // }
+  if (req.body?.skills && req.body.skills.length > 5) {
+    throw new Error("Skills array cannot exceed 5 items.");
+  }
+  return isValidOperation;
+
+}
 module.exports = {
   valiDateSignupData,
+  validateProfileEditData
 };
