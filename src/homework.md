@@ -111,3 +111,13 @@
  - Why do we need index in DB ?
  - What is the advantages or disadvantages of creating indexes 
  - ALWAYS THINK ABOUT CORNER CASES
+
+ - Write code with proper validation for POST /request/review/:status/:requestId
+ - Thought process - POST VS GET
+ - Read about ref and populate
+ - Create GET /user/request/received with all the checks
+ - Create GET /user/connections
+
+ - Logic for GET /feed API
+ - Explore the $in, $and, $or, $ne and other query operators
+ - Pagination - .limit().skip()
