@@ -62,10 +62,9 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
 userRouter.get("/user/feed", userAuth, async (req, res) => {
   try {
-
     const page = parseInt(req.query.page) || 1;
     let limit = parseInt(req.query.limit) || 10;
-    limit = limit>50 ? 50 : limit; // Limit to a maximum of 50 users per request
+    limit = limit > 50 ? 50 : limit; 
     const skip = (page - 1) * limit;
     const loggedInUser = req.user;
 
@@ -78,19 +77,16 @@ userRouter.get("/user/feed", userAuth, async (req, res) => {
       hideUsersFromFeed.add(request.toUserId.toString());
       hideUsersFromFeed.add(request.fromUserId.toString());
     });
-    // if (request.fromUserId.toString() === loggedInUser._id.toString()) {
-    //     hideUsersFromFeed.add(request.toUserId.toString());
-    // } else {
-    //     hideUsersFromFeed.add(request.fromUserId.toString());
-    // }
-    // });
 
     const users = await User.find({
       $and: [
         { _id: { $ne: loggedInUser._id } },
         { _id: { $nin: Array.from(hideUsersFromFeed) } },
       ],
-    }).select(USER_SAFE_DATA).limit(limit).skip(skip);
+    })
+      .select(USER_SAFE_DATA)
+      .limit(limit)
+      .skip(skip);
 
     console.log("Users:", users);
     res.json({ users });
