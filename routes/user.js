@@ -5,7 +5,7 @@ const User = require("../models/user");
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 
-const USER_SAFE_DATA = ["firstName", "lastName", "photoUrl", "about", "skills"];
+const USER_SAFE_DATA = ["firstName", "lastName", "photoUrl", "about", "skills", "age", "gender"];
 
 userRouter.get("/user/requests/received", userAuth, async (req, res) => {
   try {
@@ -54,6 +54,8 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     });
     // console.log("Connections:", data);
     res.json({ data });
+    console.log("Connections:", data);
+    
   } catch (error) {
     console.error("Error fetching connections:", error);
     res.status(500).json({ error: "Internal server error" });

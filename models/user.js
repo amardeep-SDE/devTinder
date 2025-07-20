@@ -63,14 +63,15 @@ const userSchema = new mongoose.Schema(
       },
     },
     photoUrl: {
-      type: String,
-      default: "https://example.com/default-photo.jpg",
-      validate(value) {
-        if (!value.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif)$/)) {
-          throw new Error("Invalid photo URL");
-        }
-      },
-    },
+  type: String,
+  default: "https://example.com/default-photo.jpg",
+  validate(value) {
+    if (!validator.isURL(value)) {
+      throw new Error("Invalid photo URL");
+    }
+  },
+},
+
     about: {
       type: String,
       trim: true,
